@@ -195,15 +195,16 @@ public class Alora implements ActionListener {
             journalEntries selectedEntry = entryList.getSelectedValue();
             if (selectedEntry != null) {
                 String newText = editTextArea.getText(); // Get updated text from the text area
-                selectedEntry.updateEntry(newText); // Update the entry text
+                selectedEntry.setEntry(newText); // Update the entry text
                 
                 // Get the new title from the editTitleField
                 String newTitle = editTitleField.getText();
-                selectedEntry.updateTitle(newTitle); // Update the entry title
+                selectedEntry.setTitle(newTitle); // Update the entry title
+                selectedEntry.updateHeader(); // update header
 
                 // Update the title in the month panel text
-                JLabel monthLabel = (JLabel) currentPanel.getComponent(1); // Assuming the title label is at index 1 in the month panel
-                monthLabel.setText(newTitle);
+                // JLabel monthLabel = (JLabel) currentPanel.getComponent(1); // Assuming the title label is at index 1 in the month panel
+                // monthLabel.setText(newTitle);
 
                 // Switch back to the previous panel using CardLayout
                 cl.show(mainPanel, getPrevPane());
@@ -269,7 +270,7 @@ public class Alora implements ActionListener {
                 journalEntries selectedEntry = entryList.getSelectedValue();
                 if (selectedEntry != null) {
                     // Set the title in editTitleField
-                    editTitleField.setText(selectedEntry.title);
+                    editTitleField.setText(selectedEntry.getTitle());
                     editTextArea.setText(selectedEntry.getEntry()); // Set the text in editTextArea
                     cl.show(mainPanel, "editEntry"); // Show the editEntry panel
                 } else {
@@ -370,9 +371,13 @@ class journalEntries {
         }
     }
 
-    //Setter method to set the title of the entry
+    //Getter and Setter method to set the title of the entry
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getTitle(){
+        return title;
     }
 
     //Getter method to get the entry text
@@ -420,13 +425,7 @@ class journalEntries {
         return this.header;
     }
 
-    // Method to update the entry text
-    public void updateEntry(String updatedEntry) {
-        this.entry = updatedEntry;
-    }
-
-    // Method to update the title
-    public void updateTitle(String updatedTitle) {
-        this.title = updatedTitle;
+    public void updateHeader(){
+        this.header = title + ": " + entry.substring(0, Math.min(9, entry.length())) + "...  " + date;
     }
 }
