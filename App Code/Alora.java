@@ -6,279 +6,329 @@ import java.util.Date;
 
 import javax.swing.*;
 
+public class Alora implements ActionListener {
+  private JFrame frame; // Main frame
+  // Content, home, editing page, viewEntry, and current panels
+  private JPanel mainPanel, home, addEntry, viewEntry, currentPanel;
+  private CardLayout cl; // Card layout
+  private JScrollPane scrollPane; // Scroll pane
 
-public class Alora implements ActionListener{
+  // Month buttons
+  JButton january, february, march, april, may, june, july, august, september,
+      october, november, december;
+  JButton[] monthButtons = { january, february, march, april, may, june, july,
+      august, september, october, november, december };
 
-    private JFrame frame;
+  // Month panels
+  JPanel janPanel, febPanel, marPanel, aprPanel, mayPanel, junePanel, julyPanel,
+      augPanel, sepPanel, octPanel, novPanel, decPanel;
+  JPanel[] monthPanels = { janPanel, febPanel, marPanel, aprPanel, mayPanel,
+      junePanel, julyPanel, augPanel, sepPanel, octPanel, novPanel, decPanel };
 
-    private JPanel content;
-    CardLayout cl;
+  // Month names
+  String[] monthNames = { "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December" };
 
-    private JScrollPane scrollPane;
+  JTextArea textArea; // Text area fordream entry
+  JButton save, cancel; // Button to save and cancel entries
 
-    JButton january;
-    JButton febuary;
-    JButton march;
-    JButton april;
-    JButton may;
-    JButton june;
-    JButton july;
-    JButton august;
-    JButton september;
-    JButton october;
-    JButton november;
-    JButton december;
+  // Array list named entries to hold journal entries
+  ArrayList<journalEntries> entries = new ArrayList<journalEntries>();
+  JList<journalEntries> entryList; // List to display entries
+  private DefaultListModel<journalEntries> listModel; // List model for entries
 
-    JButton[] monthButtons = {january, febuary, march, april, may, june, july, august, september, october, november, december};
-    String[] monthNames = {"January", "Febuary", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+  JLabel viewText; // Label for view button
+  JButton back; // Button to go back
 
-    JPanel home;
+  Alora() {
+    frame = new JFrame("Alora"); // Title of frame
+    frame.setSize(600, 500); // Size of frame
+    frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Allow user to exit frame
 
-    JPanel janPanel;
-    JPanel febPanel;
-    JPanel marPanel;
-    JPanel aprPanel;
-    JPanel mayPanel;
-    JPanel junePanel;
-    JPanel julyPanel;
-    JPanel augPanel;
-    JPanel sepPanel;
-    JPanel octPanel;
-    JPanel novPanel;
-    JPanel decPanel;
+    cl = new CardLayout(); // Card layout to switch between panels
 
-    JPanel[] monthPanels = {janPanel, febPanel, marPanel, aprPanel, mayPanel, junePanel, julyPanel, augPanel, sepPanel, octPanel, novPanel, decPanel};
+    listModel = new DefaultListModel<journalEntries>();
+    entryList = new JList<journalEntries>(listModel);
+    entryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // Only one entry can be selected at a time
 
-    JPanel editingPage;
-    JTextArea textArea;
-    JButton save;
-    JButton cancel;
+    // *************MAIN PANEL*************
+    mainPanel = new JPanel(cl); // Main panel to display all panels using card layout
+    createPanels(); // Method to display month panels
+    for (int i = 0; i < monthPanels.length; i++) {
+      mainPanel.add(monthPanels[i], monthNames[i]);
+    }
 
-    JPanel currentPanel;
+    // *************HOME PANEL*************
+    home = new JPanel(new BorderLayout()); // Home panel
 
-    ArrayList<journalEntries> entries = new ArrayList<journalEntries>();
+    // Adding title to home page
+    JLabel titleLabel = new JLabel("✮⋆₊˚⊹Dream Journal˙₊˚✮⊹");
+    titleLabel.setFont(new Font("Chalkduster", Font.BOLD, 24));
+    home.add(titleLabel, BorderLayout.PAGE_START); // Add title label to the top
 
-    JList<journalEntries> entryList;
-    private DefaultListModel<journalEntries> listModel;
+    createMonths(); // Method to display month buttons
+    JPanel buttonPanel = new JPanel(new GridLayout(3, 4, 20, 20)); // 3 rows, 4 columns grid layout
+    for (int i = 0; i < monthButtons.length; i++) {
+        buttonPanel.add(monthButtons[i]); // Add buttons to buttonPanel
+    }
+    home.add(buttonPanel, BorderLayout.CENTER); // Add buttonPanel to the center
 
-    JPanel viewPort;
-    JLabel viewText;
-    JButton back;
-    
+    // *************ADDING ENTRY PANEL*************
+    addEntry = new JPanel(); // Adding page panel
 
-    Alora(){
-        frame = new JFrame("Alora");
-        frame.setSize(600,500);
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+    textArea = new JTextArea(20, 30); // Text area for dream entry
 
-        cl = new CardLayout();
+    save = new JButton("Save"); // Button to save new dream entry
+    save.addActionListener(this); // Action listener for save button
 
-        listModel = new DefaultListModel<journalEntries>();
-        entryList = new JList<journalEntries>(listModel);
-        entryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    cancel = new JButton("Cancel"); // Button to cancel new dream entry
+    cancel.addActionListener(this); // Action listener for cancel button
 
-        content = new JPanel(cl);
-        home = new JPanel();
-        editingPage = new JPanel();
-        textArea = new JTextArea(20, 30);
-        save = new JButton("Save");
-        save.addActionListener(this);
-        cancel = new JButton("Cancel");
-        cancel.addActionListener(this);
-        editingPage.add(textArea);
-        editingPage.add(save);
-        editingPage.add(cancel);
+    // Add all components to the edit entry page
+    addEntry.add(textArea);
+    addEntry.add(save);
+    addEntry.add(cancel);
 
-        viewPort = new JPanel();
-        viewText = new JLabel("View");
-        viewPort.add(viewText);
-        back = new JButton("Back");
-        back.addActionListener(this);
-        viewPort.add(back);
+    // *************VIEWING PAGE PANEL*************
+    viewEntry = new JPanel(); // Viewing page panel
 
-        content.add(home, "home");
-        content.add(editingPage, "editingPage");
-        content.add(viewPort, "viewPort");
+    viewText = new JLabel(); // Label to display entry and date
+    viewEntry.add(viewText); // Add label to viewing page panel
 
-        createMonths();
-        createPanels();
+    back = new JButton("Back"); // Button to go back to home page
+    back.addActionListener(this); // Action listener for back button
+    viewEntry.add(back); // Add back button to viewing page panel
+
+    // Add home, addEntry, and viewEntry panels to the main panel
+    mainPanel.add(home, "home");
+    mainPanel.add(addEntry, "addEntry");
+    mainPanel.add(viewEntry, "viewEntry");
+
+    cl.show(mainPanel, "home"); // Show the home panel as the first visible panel
+
+    currentPanel = home; // Set the current panel to the home panel
+    frame.getContentPane().add(mainPanel); // Add the main panel to the frame
+    frame.setVisible(true); // Set the frame to be visible
+    frame.setResizable(false); // Set the frame to not be resizable
+  }
+
+  // Main method
+  public static void main(String[] args) {
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        new Alora();
+      }
+    });
+  }
+
+  // Method to display month buttons
+private void createMonths() {
+    home.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20)); // Set FlowLayout with center alignment
+
+    for (int i = 0; i < monthButtons.length; i++) {
+        monthButtons[i] = new JButton(monthNames[i]);
+        monthButtons[i].addActionListener(this);
+        home.add(monthButtons[i]); // Add buttons to the home panel
+    }
+}
 
 
-        //add
-        for (int i = 0; i < monthButtons.length; i++){
-            home.add(monthButtons[i]);
-        }
-        
-        for (int i = 0; i < monthPanels.length; i++){
-            content.add(monthPanels[i], monthNames[i]);
-        }
-        
+  // Method to display month panels
+  private void createPanels() {
+    for (int i = 0; i < monthPanels.length; i++) {
+      monthPanels[i] = new JPanel();
+      monthPanels[i].add(createHomeButton());
+      monthPanels[i].add(new JLabel(monthNames[i]));
+      monthPanels[i].add(createAddEntry());
+      monthPanels[i].add(createDeleteEntry());
+      monthPanels[i].add(createView());
+    }
+  }
+
+  // Action events for buttons
+  public void actionPerformed(ActionEvent e) {
+    // ****SAVE BUTTON****
+    if (e.getSource() == save) {
+      Date tempDate = new Date(); // Get the current date
+      String tempText = textArea.getText(); // Get the text entered in the text area
+      JPanel tempPanel = currentPanel; // Store the current panel in a temporary variable
+
+      // Create a new journal entry with the entered text, current date, and current
+      // panel
+      journalEntries tempEntry = new journalEntries(tempText, tempDate, tempPanel);
+      entries.add(tempEntry); // Add the new entry to the list of entries
+      cl.show(mainPanel, getPrevPane()); // Go to previous panel
+      update(); // Update the displayed content
+    }
+    // ****CANCEL BUTTON****
+    else if (e.getSource() == cancel) {
+      cl.show(mainPanel, getPrevPane()); // Switch back to the previous panel using CardLayout
+      update(); // Update the displayed content
+    }
+    // ****BACK BUTTON****
+    else if (e.getSource() == back) {
+      cl.show(mainPanel, getPrevPane()); // Switch back to the previous panel using CardLayout
+      update(); // Update the displayed content
+    }
+    // ****MONTHS BUTTON****
+    for (int i = 0; i < monthButtons.length; i++) {
+      if (e.getSource() == monthButtons[i]) {
+        cl.show(mainPanel, monthNames[i]); // Switch to corresponding month panel using CardLayout
+        currentPanel = monthPanels[i]; // Update the current panel to the selected month panel
+        update(); // Update the displayed content
+      }
+    }
+  }
+
+  //Button to allow user to return to the homepage
+  private JButton createHomeButton() {
+    JButton homeButton = new JButton("Back");
+    homeButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        cl.show(mainPanel, "home");
         currentPanel = home;
-        frame.getContentPane().add(content);
-        frame.setVisible(true);
-        frame.setResizable(false);
-    }
+      }
+    });
+    return homeButton;
+  }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new Alora();
-            }
-        });
-    }
+  //Button to add dream entries
+  private JButton createAddEntry() {
+    JButton addEntry = new JButton("Add Entry");
+    addEntry.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        textArea.setText("");
+        cl.show(mainPanel, "addEntry");
+      }
+    });
+    return addEntry;
+  }
 
-    private void createMonths(){
-        for (int i = 0; i < monthButtons.length; i++){
-            monthButtons[i] = new JButton(monthNames[i]);
-            monthButtons[i].addActionListener(this);
+  //Button to delete dream entries
+  private JButton createDeleteEntry() {
+    JButton deleteEntry = new JButton("Delete Entry");
+    deleteEntry.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        journalEntries selectedEntry = entryList.getSelectedValue();
+        if (selectedEntry != null) {
+          entries.remove(selectedEntry);
+          cl.show(mainPanel, getPrevPane());
+          update();
+        } else {
+          // Handle when no entry is selected
+          JOptionPane.showMessageDialog(frame, "Please select an entry to delete.");
         }
-    }
+      }
+    });
+    return deleteEntry;
+  }
 
-    private void createPanels(){
-        for (int i = 0; i < monthPanels.length; i++){
-            monthPanels[i] = new JPanel();
-            monthPanels[i].add(createHomeButton());
-            monthPanels[i].add(new JLabel(monthNames[i]));
-            monthPanels[i].add(createAddEntry());
-            monthPanels[i].add(createView());
+  //Button to view dream entries
+  private JButton createView() {
+    JButton viewButton = new JButton("View");
+    viewButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        journalEntries selectedEntry = entryList.getSelectedValue();
+        if (selectedEntry != null) {
+          String text = entryList.getSelectedValue().getEntry();
+          Date date = entryList.getSelectedValue().getDate();
+          viewText.setText("<html><p>" + date + "</p> <br> <p>" + text + "</p> </html>");
+          cl.show(mainPanel, "viewEntry");
+        } else {
+          // Handle when no entry is selected
+          JOptionPane.showMessageDialog(frame, "Please select an entry to view.");
         }
+      }
+    });
+    return viewButton;
+  }
+
+  //Method to update the displayed content
+  private void update() {
+    listModel.clear();
+    for (int i = 0; i < entries.size(); i++) {
+      if (entries.get(i).getMonth() == currentPanel) {
+        listModel.addElement(entries.get(i));
+      }
     }
+    currentPanel.add(entryList);
+  }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == save){
-            Date tempDate = new Date();
-            String tempText = textArea.getText();
-            JPanel tempPanel = currentPanel;
-            journalEntries tempEntry = new journalEntries(tempText, tempDate, tempPanel);
-            entries.add(tempEntry);
-            cl.show(content, getPrevPane());
-            update();
-        }
-        else if (e.getSource() == cancel){
-            cl.show(content, getPrevPane());
-            update();
-        }
-        else if (e.getSource() == back){
-            cl.show(content, getPrevPane());
-            update();
-        }
-        for (int i = 0; i < monthButtons.length; i++){
-            if (e.getSource() == monthButtons[i]){
-                cl.show(content, monthNames[i]);
-                currentPanel = monthPanels[i];
-                update();
-            }
-        }
+  //Method to get previous pane
+  private String getPrevPane() {
+    for (int i = 0; i < monthPanels.length; i++) {
+      if (currentPanel == monthPanels[i]) {
+        return monthNames[i];
+      }
     }
-
-    private JButton createHomeButton(){
-        JButton homeButton = new JButton("Back");
-        homeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cl.show(content, "home");
-                currentPanel = home;
-            }
-        });
-        return homeButton;
-    }
-
-    private JButton createAddEntry(){
-        JButton addEntry = new JButton("Add Entry");
-        addEntry.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                textArea.setText("");
-                cl.show(content, "editingPage");
-            }
-        });
-        return addEntry;
-    }
-
-    private JButton createView(){
-        JButton viewButton = new JButton("View");
-        viewButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String text = entryList.getSelectedValue().getEntry();
-                Date date = entryList.getSelectedValue().getDate();
-                viewText.setText("<html><p>" + date + "</p> <br> <p>" + text +"</p> </html>");
-                cl.show(content, "viewPort");
-            }
-        });
-        return viewButton;
-    }
-
-    private void update(){
-        listModel.clear();
-        for (int i = 0; i < entries.size(); i++){
-            if (entries.get(i).getMonth() == currentPanel){
-                listModel.addElement(entries.get(i));
-            }
-        }
-        currentPanel.add(entryList);
-    }
-
-
-    private String getPrevPane(){
-        for (int i = 0; i < monthPanels.length; i++){
-            if (currentPanel == monthPanels[i]){
-                return monthNames[i];
-            }
-        }
-        return "home";
-    }
-
+    return "home";
+  }
 
 }
 
-class journalEntries{
-    String entry;
-    Date date;
-    JPanel month;
-    String header;
-    journalEntries(String entry, Date date, JPanel month){
-        this.entry = entry;
-        this.date = date;
-        this.month = month;
-        if (entry.length() < 10){
-            this.header = entry + "...  " + date;
-        }
-        else{
-            this.header = entry.substring(0,9) + "...  " + date;
-        }
-    }
-    public String getEntry() {
-        return entry;
-    }
-    public void setEntry(String entry) {
-        this.entry = entry;
-    }
-    public Date getDate() {
-        return date;
-    }
-    public void setDate(Date date) {
-        this.date = date;
-    }
-    public JPanel getMonth() {
-        return month;
-    }
-    public void setMonth(JPanel month) {
-        this.month = month;
-    }
-    public String getHeader() {
-        return header;
-    }
-    public void setHeader(String header) {
-        this.header = header;
-    }
+class journalEntries {
+  String entry; //Dream entry text
+  Date date; //Date of the dream entry
+  JPanel month; //Month panel associated with the entry
+  String header; //Header for the entry
 
-    @Override
-    public String toString() {
-        return this.header;
-    }
+  //Initialize dream entries with text, date, month panel
+  journalEntries(String entry, Date date, JPanel month) {
+    this.entry = entry; //Set entry text
+    this.date = date; //Set date of the entry
+    this.month = month; //Set month panel associated with the entry
 
-    
-    
+    ///Generate a header for entry based on the text length
+    if (entry.length() < 10) {
+      this.header = entry + "...  " + date;
+    } else {
+      this.header = entry.substring(0, 9) + "...  " + date;
+    }
+  }
+
+  //Getter method to get the entry text
+  public String getEntry() {
+    return entry;
+  }
+
+  //Setter method to set the entry text
+  public void setEntry(String entry) {
+    this.entry = entry;
+  }
+
+  //Getter method to get the date of the entry
+  public Date getDate() {
+    return date;
+  }
+
+  //Setter method to get the date of the entry
+  public void setDate(Date date) {
+    this.date = date;
+  }
+
+  //Getter method to get the month panel associated with the entry
+  public JPanel getMonth() {
+    return month;
+  }
+
+  //Setter method to set the month panel associated with the entry
+  public void setMonth(JPanel month) {
+    this.month = month;
+  }
+
+  //Getter method to get the header of the entry
+  public String getHeader() {
+    return header;
+  }
+
+  //Setter method to set the header of the entry
+  public void setHeader(String header) {
+    this.header = header;
+  }
+
+  //Method to display the entry
+  public String toString() {
+    return this.header;
+  }
+
 }
