@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.swing.*;
+import java.text.SimpleDateFormat;
 
 public class Alora implements ActionListener {
     private JFrame frame; // Main frame
@@ -181,13 +182,13 @@ public class Alora implements ActionListener {
             String tempTitle = titleField.getText(); // Get the title entered by the user
             String tempText = textArea.getText(); // Get the text entered in the text area
             JPanel tempPanel = currentPanel; // Store the current panel in a temporary variable
-
+        
             // Create a new journal entry with the entered title, text, current date, and current panel
             journalEntries tempEntry = new journalEntries(tempTitle, tempText, tempDate, tempPanel);
             entries.add(tempEntry); // Add the new entry to the list of entries
             cl.show(mainPanel, getPrevPane()); // Go to the previous panel
             update(); // Update the displayed content
-            
+        
             titleField.setText(""); // Clear the titleField after saving an entry
         }
         // ****UPDATE BUTTON****
@@ -422,7 +423,12 @@ class journalEntries {
 
     //Method to display the entry
     public String toString() {
-        return this.header;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("E MM/dd/yy h:mm a");
+        String formattedDate = dateFormat.format(this.date);
+        
+        //Modify the return statement to include the formatted date
+        return this.title + ": " + this.entry.substring(0, Math.min(9, this.entry.length())) +
+                "...  " + formattedDate;
     }
 
     public void updateHeader(){
