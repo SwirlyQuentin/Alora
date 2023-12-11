@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import javax.swing.*;
@@ -30,7 +31,7 @@ public class Alora implements ActionListener {
             "July", "August", "September", "October", "November", "December"};
 
     JTextArea textArea, editTextArea; //Text area for dream entry
-    JButton save, cancel, updateEntry; //Button to save, update and cancel entries
+    JButton save, cancelAdd, cancelEdit, updateEntry; //Button to save, update and cancel entries
 
     //Array list named entries to hold journal entries
     ArrayList<journalEntries> entries = new ArrayList<journalEntries>();
@@ -41,6 +42,10 @@ public class Alora implements ActionListener {
     JButton back; //Button to go back
 
     JTextField titleField, editTitleField; //Text field for the title in adding entry panel and editing entry panel
+
+    Color lightBlue = new Color(236, 242, 255);
+    Color lightPurple = new Color(191, 172, 226);
+    Color darkBlue = new Color(62, 84, 172);
 
     Alora() {
         frame = new JFrame("Alora"); //Title of frame
@@ -55,6 +60,7 @@ public class Alora implements ActionListener {
 
         //*************MAIN PANEL*************
         mainPanel = new JPanel(cl); //Main panel to display all panels using card layout
+
         createPanels(); //Method to display month panels
         for (int i = 0; i < monthPanels.length; i++) {
             mainPanel.add(monthPanels[i], monthNames[i]);
@@ -63,61 +69,109 @@ public class Alora implements ActionListener {
         //*************HOME PANEL*************
         home = new JPanel(new BorderLayout()); //Home panel
 
+        home.setBackground(lightBlue); //Background color
+
         //Adding title to home page
-        mainHeader = new JLabel("✮⋆₊˚⊹Dream Journal˙₊˚✮⊹");
-        mainHeader.setFont(new Font("Chalkduster", Font.BOLD, 24));
+        mainHeader = new JLabel("⊹˚₊ Dream Journal ₊˚⊹");
+        mainHeader.setFont(new Font("MS Gothic", Font.BOLD, 30));
+        mainHeader.setForeground(darkBlue);
         home.add(mainHeader, BorderLayout.PAGE_START); //Add title label to the top
 
         createMonths(); //Method to display month buttons
         JPanel buttonPanel = new JPanel(new GridLayout(3, 4, 20, 20)); //3 rows, 4 columns grid layout
+        buttonPanel.setBackground(lightBlue); //Set background
         for (int i = 0; i < monthButtons.length; i++) {
             buttonPanel.add(monthButtons[i]); //Add buttons to buttonPanel
         }
+
         home.add(buttonPanel, BorderLayout.CENTER); //Add buttonPanel to the center
 
         //*************ADDING ENTRY PANEL*************
-        addEntry = new JPanel(); //Adding page panel
+        addEntry = new JPanel(new BorderLayout()); //Using BorderLayout for addEntry panel
+
+        addEntry.setBackground(lightBlue); //Background color
+
+        //Panel for title and text area in a separate flow layout
+        JPanel titleTextAreaPanel = new JPanel(new FlowLayout());
+        titleTextAreaPanel.setBackground(lightBlue);
 
         //Adding title field for the dream entry
         JLabel titleLabelField = new JLabel("Title: ");
+        titleLabelField.setFont(new Font("MS Gothic", Font.BOLD, 20));
         titleField = new JTextField(20); //Text field for the title
-        addEntry.add(titleLabelField);
-        addEntry.add(titleField);
+        titleTextAreaPanel.add(titleLabelField);
+        titleTextAreaPanel.add(titleField);
 
         textArea = new JTextArea(20, 30); //Text area for dream entry
 
+        //Adding title and text area to titleTextAreaPanel
+        titleTextAreaPanel.add(textArea);
+
         save = new JButton("Save"); //Button to save new dream entry
+        save.setBackground(darkBlue);
+        save.setForeground(lightBlue);
+        save.setFont(new Font("Gabriola", Font.BOLD, 20));
         save.addActionListener(this); //Action listener for save button
 
-        cancel = new JButton("Cancel"); //Button to cancel new dream entry
-        cancel.addActionListener(this); //Action listener for cancel button
+        cancelAdd = new JButton("Cancel"); //Button to cancel new dream entry
+        cancelAdd.setBackground(darkBlue);
+        cancelAdd.setForeground(lightBlue);
+        cancelAdd.setFont(new Font("Gabriola", Font.BOLD, 20));
+        cancelAdd.addActionListener(this); //Action listener for cancel button
 
-        //Add all components to the edit entry page
-        addEntry.add(textArea);
-        addEntry.add(save);
-        addEntry.add(cancel);
+        //Buttons panel in a flow layout
+        JPanel buttonsPanel = new JPanel(new FlowLayout());
+        buttonsPanel.setBackground(lightBlue);
+        buttonsPanel.add(save);
+        buttonsPanel.add(cancelAdd);
 
-        //****EDITING ENTRY PANEL*************
-        editEntry = new JPanel(); //Editing page panel
+        //Adding titleTextAreaPanel to the center and buttonsPanel to the north
+        addEntry.add(titleTextAreaPanel, BorderLayout.CENTER);
+        addEntry.add(buttonsPanel, BorderLayout.NORTH);
+
+
+        //*************EDITING ENTRY PANEL*************
+        editEntry = new JPanel(new BorderLayout()); //Using BorderLayout for editEntry panel
+
+        editEntry.setBackground(lightBlue); //Background color
+
+        //Panel for title and text area in a separate flow layout
+        JPanel editTitleTextAreaPanel = new JPanel(new FlowLayout());
+        editTitleTextAreaPanel.setBackground(lightBlue);
 
         //Adding title field for the dream entry
         JLabel editTitleLabelField = new JLabel("Title: ");
+        editTitleLabelField.setFont(new Font("MS Gothic", Font.BOLD, 20));
         editTitleField = new JTextField(20); //Text field for the title
-        editEntry.add(editTitleLabelField);
-        editEntry.add(editTitleField);
+        editTitleTextAreaPanel.add(editTitleLabelField);
+        editTitleTextAreaPanel.add(editTitleField);
 
         editTextArea = new JTextArea(20, 30); //Text area for editing dream entry
 
+        //Adding title and text area to editTitleTextAreaPanel
+        editTitleTextAreaPanel.add(editTextArea);
+
         updateEntry = new JButton("Update"); //Button to update dream entry
+        updateEntry.setBackground(darkBlue);
+        updateEntry.setForeground(lightBlue);
+        updateEntry.setFont(new Font("Gabriola", Font.BOLD, 20));
         updateEntry.addActionListener(this); //Action listener for update button
 
-        cancel = new JButton("Cancel"); //Button to cancel editing dream entry
-        cancel.addActionListener(this); //Action listener for cancel button
+        cancelEdit = new JButton("Cancel"); //Button to cancel editing dream entry
+        cancelEdit.setBackground(darkBlue);
+        cancelEdit.setForeground(lightBlue);
+        cancelEdit.setFont(new Font("Gabriola", Font.BOLD, 20));
+        cancelEdit.addActionListener(this); //Action listener for cancel button
 
-        //Add components to the edit entry page
-        editEntry.add(editTextArea);
-        editEntry.add(updateEntry);
-        editEntry.add(cancel);
+        //Buttons panel in a flow layout
+        JPanel editButtonsPanel = new JPanel(new FlowLayout());
+        editButtonsPanel.setBackground(lightBlue);
+        editButtonsPanel.add(updateEntry);
+        editButtonsPanel.add(cancelEdit);
+
+        //Adding editTitleTextAreaPanel to the center and editButtonsPanel to the north
+        editEntry.add(editTitleTextAreaPanel, BorderLayout.CENTER);
+        editEntry.add(editButtonsPanel, BorderLayout.NORTH);
 
         //Add the edit entry panel to the main panel
         mainPanel.add(editEntry, "editEntry");
@@ -125,11 +179,18 @@ public class Alora implements ActionListener {
         //*************VIEWING PAGE PANEL*************
         viewEntry = new JPanel(); //Viewing page panel
 
+        viewEntry.setBackground(lightBlue); //Background color
+
         viewText = new JLabel(); //Label to display entry and date
+        viewText.setFont(new Font("MS Gothic", Font.PLAIN, 15));
+        viewEntry.setFont(new Font("MS Gothic", Font.PLAIN, 20));
         viewEntry.add(viewText); //Add label to viewing page panel
 
         back = new JButton("Back"); //Button to go back to home page
+        back.setBackground(darkBlue);
+        back.setForeground(lightBlue);
         back.addActionListener(this); //Action listener for back button
+        back.setFont(new Font("Gabriola", Font.BOLD, 20));
         viewEntry.add(back); //Add back button to viewing page panel
 
         //Add home, addEntry, and viewEntry panels to the main panel
@@ -137,8 +198,8 @@ public class Alora implements ActionListener {
         mainPanel.add(addEntry, "addEntry");
         mainPanel.add(viewEntry, "viewEntry");
 
+        //*************ETC
         cl.show(mainPanel, "home"); //Show the home panel as the first visible panel
-
         currentPanel = home; //Set the current panel to the home panel
         frame.getContentPane().add(mainPanel); //Add the main panel to the frame
         frame.setVisible(true); //Set the frame to be visible
@@ -156,6 +217,9 @@ public class Alora implements ActionListener {
 
         for (int i = 0; i < monthButtons.length; i++) {
             monthButtons[i] = new JButton(monthNames[i]);
+            monthButtons[i].setBackground(darkBlue);
+            monthButtons[i].setForeground(lightBlue);
+            monthButtons[i].setFont(new Font("Gabriola", Font.BOLD, 20));
             monthButtons[i].addActionListener(this);
             home.add(monthButtons[i]); //Add buttons to the home panel
         }
@@ -168,24 +232,23 @@ public class Alora implements ActionListener {
 
             //Create a panel to hold the back button and the month label using FlowLayout
             JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+            topPanel.setBackground(lightPurple); //Background color
 
             //Create the back button add it to the top panel
             topPanel.add(createHomeButton());
 
             //Create the month label and add to top panel
             JLabel monthLabel = new JLabel(monthNames[i]);
-            Font labelFont = monthLabel.getFont();
-            monthLabel.setFont(new Font(labelFont.getName(), Font.BOLD, 18)); //Change the font size to 18 (you can adjust the size as needed)
-
-            // Add the month label to the top panel
-            topPanel.add(monthLabel);
-
+            monthLabel.setFont(new Font("MS Gothic", Font.BOLD, 25));
+            
+            topPanel.add(monthLabel); //Add the month label to the top panel
 
             //Add the top panel to the NORTH position
             monthPanels[i].add(topPanel, BorderLayout.NORTH);
 
             //Create a panel to hold buttons using FlowLayout
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+            buttonPanel.setBackground(lightPurple); //Set background
 
             //Add buttons to the button panel
             buttonPanel.add(createAddEntry());
@@ -227,10 +290,6 @@ public class Alora implements ActionListener {
                 selectedEntry.setTitle(newTitle); //Update the entry title
                 selectedEntry.updateHeader(); //update header
 
-                //Update the title in the month panel text
-                //JLabel monthLabel = (JLabel) currentPanel.getComponent(1); //Assuming the title label is at index 1 in the month panel
-                //monthLabel.setText(newTitle);
-
                 //Switch back to the previous panel using CardLayout
                 cl.show(mainPanel, getPrevPane());
                 update(); //Update the displayed content
@@ -243,8 +302,15 @@ public class Alora implements ActionListener {
                 JOptionPane.showMessageDialog(frame, "Please select an entry to update.");
             }
         }
-        //****CANCEL BUTTON****
-        else if (e.getSource() == cancel) {
+        //****CANCEL BUTTON for adding entry****
+        else if (e.getSource() == cancelAdd) {
+            titleField.setText(""); //Clear the text in titleField
+            textArea.setText(""); //Clear the text in the textArea
+            cl.show(mainPanel, getPrevPane()); //Switch back to the previous panel using CardLayout
+            update(); //Update the displayed content
+        }
+        //****CANCEL BUTTON for editing entry****
+        else if (e.getSource() == cancelEdit) {
             cl.show(mainPanel, getPrevPane()); //Switch back to the previous panel using CardLayout
             update(); //Update the displayed content
         }
@@ -266,6 +332,9 @@ public class Alora implements ActionListener {
     //Button to allow user to return to the homepage
     private JButton createHomeButton() {
         JButton homeButton = new JButton("Back");
+        homeButton.setBackground(darkBlue);
+        homeButton.setForeground(lightBlue);
+        homeButton.setFont(new Font("Gabriola", Font.BOLD, 20));
         homeButton.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             cl.show(mainPanel, "home");
@@ -278,6 +347,9 @@ public class Alora implements ActionListener {
     //Button to add dream entries
     private JButton createAddEntry() {
         JButton addEntry = new JButton("Add Entry");
+        addEntry.setBackground(darkBlue);
+        addEntry.setForeground(lightBlue);
+        addEntry.setFont(new Font("Gabriola", Font.BOLD, 20));
         addEntry.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             textArea.setText("");
@@ -290,6 +362,9 @@ public class Alora implements ActionListener {
     //Button to edit dream entries
     private JButton createEditEntry() {
         JButton editEntryButton = new JButton("Edit Entry");
+        editEntryButton.setBackground(darkBlue);
+        editEntryButton.setForeground(lightBlue);
+        editEntryButton.setFont(new Font("Gabriola", Font.BOLD, 20));
         editEntryButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 journalEntries selectedEntry = entryList.getSelectedValue();
@@ -310,6 +385,9 @@ public class Alora implements ActionListener {
     //Button to delete dream entries
     private JButton createDeleteEntry() {
         JButton deleteEntry = new JButton("Delete Entry");
+        deleteEntry.setBackground(darkBlue);
+        deleteEntry.setForeground(lightBlue);
+        deleteEntry.setFont(new Font("Gabriola", Font.BOLD, 20));
         deleteEntry.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
             journalEntries selectedEntry = entryList.getSelectedValue();
@@ -327,39 +405,88 @@ public class Alora implements ActionListener {
     }
 
     //Button to view dream entries
-private JButton createView() {
-    JButton viewButton = new JButton("View");
-    viewButton.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            journalEntries selectedEntry = entryList.getSelectedValue();
-            if (selectedEntry != null) {
-                String title = entryList.getSelectedValue().title; //Get the title of the selected entry
-                String text = entryList.getSelectedValue().getEntry(); //Get the entry text
-                Date date = entryList.getSelectedValue().getDate(); //Get the date
+    private JButton createView() {
+        JButton viewButton = new JButton("View");
+        viewButton.setBackground(darkBlue);
+        viewButton.setForeground(lightBlue);
+        viewButton.setFont(new Font("Gabriola", Font.BOLD, 20));
+        viewButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                journalEntries selectedEntry = entryList.getSelectedValue();
+                if (selectedEntry != null) {
+                    String title = entryList.getSelectedValue().title; //Get the title of the selected entry
+                    String text = entryList.getSelectedValue().getEntry(); //Get the entry text
+                    Date date = entryList.getSelectedValue().getDate(); //Get the date
 
-                //Display title, entry text, and date in the viewText label
-                viewText.setText("<html><p>" + date + "</p><br><h3>" + title + "</h3><br><p>" + text + "</p></html>");
+                    //Display title, entry text, and date in the viewText label
+                    viewText.setText("<html><p>" + date + "</p><br><h3>" + title + "</h3><br><p>" + text + "</p></html>");
 
-                cl.show(mainPanel, "viewEntry"); //Switch to the viewEntry panel
-            } else {
-                //Handle when no entry is selected
-                JOptionPane.showMessageDialog(frame, "Please select an entry to view.");
+                    cl.show(mainPanel, "viewEntry"); //Switch to the viewEntry panel
+                } else {
+                    //Handle when no entry is selected
+                    JOptionPane.showMessageDialog(frame, "Please select an entry to view.");
+                }
             }
-        }
-    });
-    return viewButton;
-}
+        });
+        return viewButton;
+    }
 
 
     //Method to update the displayed content
     private void update() {
         listModel.clear();
         for (int i = 0; i < entries.size(); i++) {
-        if (entries.get(i).getMonth() == currentPanel) {
-            listModel.addElement(entries.get(i));
-        }
+            if (entries.get(i).getMonth() == currentPanel) {
+                listModel.addElement(entries.get(i));
+            }
         }
         currentPanel.add(entryList);
+    
+        //Edit dream entries
+        entryList.setCellRenderer(new editDreamEntries());
+    }
+
+    //Method to edit dream entries
+    class editDreamEntries extends DefaultListCellRenderer {
+        private final int MAX_ENTRY_LENGTH = 30;
+
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            JPanel panel = new JPanel(new BorderLayout());
+            JLabel entryLabel = new JLabel();
+            JLabel dateLabel = new JLabel();
+
+            if (value instanceof journalEntries) {
+                journalEntries entry = (journalEntries) value;
+    
+                //Limit the length of the entry text and add '...' if it exceeds the maximum length
+                String shortenEntry = entry.getEntry().length() > MAX_ENTRY_LENGTH ?
+                        entry.getEntry().substring(0, MAX_ENTRY_LENGTH) + "..." :
+                        entry.getEntry();
+    
+                entryLabel.setText("<html><div style='width: 200px;'><b>" + entry.getTitle() + "</b>: " + shortenEntry + "</div></html>");
+                dateLabel.setText(formatDate(entry.getDate()));
+    
+                entryLabel.setFont(new Font("MS Gothic", Font.PLAIN, 20));
+                dateLabel.setFont(new Font("MS Gothic", Font.BOLD, 15));
+
+                panel.add(entryLabel, BorderLayout.WEST);
+                panel.add(dateLabel, BorderLayout.EAST);
+            }
+    
+            if (isSelected) {
+                panel.setBackground(Color.LIGHT_GRAY); //Background color when selected
+            } else {
+                panel.setBackground(list.getBackground());
+            }
+    
+            return panel;
+        }
+    
+        //Helper method to format the date
+        private String formatDate(Date date) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("E MM/dd/yy h:mm a");
+            return dateFormat.format(date);
+        }
     }
 
     //Method to get previous pane
@@ -387,13 +514,6 @@ class journalEntries {
         this.entry = entry; //Set entry text
         this.date = date; //Set date of the entry
         this.month = month; //Set month panel associated with the entry
-
-        //Generate a header for entry based on the title and text length
-        if (title.length() + entry.length() < 10) {
-            this.header = title + ": " + entry + "...  " + date;
-        } else {
-            this.header = title + ": " + entry.substring(0, Math.min(9, entry.length())) + "...  " + date;
-        }
     }
 
     //Getter and Setter method to set the title of the entry
