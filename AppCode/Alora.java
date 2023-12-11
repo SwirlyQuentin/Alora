@@ -46,6 +46,7 @@ public class Alora implements ActionListener {
     Color lightBlue = new Color(236, 242, 255);
     Color lightPurple = new Color(191, 172, 226);
     Color darkBlue = new Color(62, 84, 172);
+    Color yellow = new Color(255, 238, 187);
 
     Alora() {
         frame = new JFrame("Alora"); //Title of frame
@@ -239,7 +240,8 @@ public class Alora implements ActionListener {
 
             //Create the month label and add to top panel
             JLabel monthLabel = new JLabel(monthNames[i]);
-            monthLabel.setFont(new Font("MS Gothic", Font.BOLD, 25));
+            monthLabel.setFont(new Font("MS Gothic", Font.BOLD, 30));
+            monthLabel.setForeground(darkBlue);
             
             topPanel.add(monthLabel); //Add the month label to the top panel
 
@@ -474,7 +476,7 @@ public class Alora implements ActionListener {
             }
     
             if (isSelected) {
-                panel.setBackground(Color.LIGHT_GRAY); //Background color when selected
+                panel.setBackground(yellow); //Background color when selected
             } else {
                 panel.setBackground(list.getBackground());
             }
